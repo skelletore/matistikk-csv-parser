@@ -1,0 +1,15 @@
+{
+  "name": "log-parser",
+  "version": "0.0.1",
+  "description": "A node script that parses answers exported for matistikk (.csv) to JSON-files.",
+  "main": "parse.js",
+  "dependencies": {
+    "csvtojson": "^2.0.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tore Forbregd",
+  "license": "ISC"
+}
