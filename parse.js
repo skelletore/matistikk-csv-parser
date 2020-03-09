@@ -5,6 +5,8 @@ if (process.argv.length <= 2) {
   process.exit(-1)
 }
 
+const identifier = "1540"
+
 const fn = process.argv[2]
 const output = process.argv[3] ? process.argv[3] : "./answers"
 
@@ -12,25 +14,37 @@ csv()
   .fromFile(fn)
   .then(jsonObj => {
     // check if dir exists
+    // console.log(jsonObj)
+
     if (!fs.existsSync(output)) fs.mkdirSync(output)
     const answers = Object.entries(parse(jsonObj))
-    for (const [test, TASKS] of answers) {
-      const tasks = Object.entries(TASKS)
-      for (const [task, ans] of tasks) {
-        if (
-          ans !== null &&
-          ans !== "null" &&
-          Object.entries(ans).length !== 0 &&
-          ans.constructor === Object
-        ) {
-          const entries = Object.entries(ans)
-          const name = `${output}/${test}_${task}.json`
-          //   console.log(entries[0][1])
-          console.log(`writing ${name}...`)
-          write(name, JSON.stringify(entries[0][1]))
-          //   console.log(entries)
-          //   console.assert(entries != null, entries)
-          //   console.log(ans)
+    // process.exit(0)
+    for (const [date, DATES] of answers) {
+      const dates = Object.entries(DATES)
+      for (const [test, TASKS] of dates) {
+        const tasks = Object.entries(TASKS)
+        for (const [task, ans] of tasks) {
+          // console.log(task)
+          // console.log(ans)
+          if (
+            ans !== null &&
+            ans !== "null" &&
+            Object.entries(ans).length !== 0 &&
+            ans.constructor === Object
+          ) {
+            const entries = Object.entries(ans)
+
+            const folder = `${output}/${date}/${test}`
+            if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true })
+            const name = `${folder}/${task}.json`
+            // console.log(entries[0][1])
+            // console.log(`writing ${name}...`)
+            // process.exit(0)
+            write(name, JSON.stringify(entries[0][1]))
+            //   console.log(entries)
+            //   console.assert(entries != null, entries)
+            //   console.log(ans)
+          }
         }
       }
     }
@@ -41,8 +55,13 @@ function parse(arr = []) {
   for (let el of arr) {
     const test_attempt = parseInt(el.test_attempt)
     const task_instance = parseInt(el.task_instance)
-    if (!(test_attempt in res)) res[test_attempt] = {}
-    const student = res[test_attempt]
+    const time = el.created_at.slice(0, 10)
+    // console.log(time)
+    if (!(time in res)) res[time] = {}
+    const date = res[time]
+    if (!(test_attempt in date)) date[test_attempt] = {}
+    const student = date[test_attempt]
+    // student.time = time
     if (!(task_instance in student)) student[task_instance] = {}
 
     // student[task_instance] = el.data.match("paperJSON") ? null : sanitize(el.data)
@@ -72,7 +91,7 @@ function sanitize(arg = "") {
   try {
     res = JSON.parse(d)
   } catch (e) {
-    console.log(d)
+    console.log("ERR", d)
   }
   return res
 }
