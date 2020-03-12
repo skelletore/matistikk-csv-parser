@@ -5,8 +5,6 @@ if (process.argv.length <= 2) {
   process.exit(-1)
 }
 
-const identifier = "1540"
-
 const fn = process.argv[2]
 const output = process.argv[3] ? process.argv[3] : "./answers"
 
@@ -37,13 +35,7 @@ csv()
             const folder = `${output}/${date}/${test}`
             if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true })
             const name = `${folder}/${task}.json`
-            // console.log(entries[0][1])
-            // console.log(`writing ${name}...`)
-            // process.exit(0)
             write(name, JSON.stringify(entries[0][1]))
-            //   console.log(entries)
-            //   console.assert(entries != null, entries)
-            //   console.log(ans)
           }
         }
       }
@@ -56,12 +48,10 @@ function parse(arr = []) {
     const test_attempt = parseInt(el.test_attempt)
     const task_instance = parseInt(el.task_instance)
     const time = el.created_at.slice(0, 10)
-    // console.log(time)
     if (!(time in res)) res[time] = {}
     const date = res[time]
     if (!(test_attempt in date)) date[test_attempt] = {}
     const student = date[test_attempt]
-    // student.time = time
     if (!(task_instance in student)) student[task_instance] = {}
 
     // student[task_instance] = el.data.match("paperJSON") ? null : sanitize(el.data)
@@ -78,6 +68,7 @@ function sanitize(arg = "") {
    */
   let d = ""
   d = arg
+  console.time("regex")
   d = d
     .replace(/None/g, "null")
     .replace(/definition\_string/g, "definitionString")
@@ -86,12 +77,12 @@ function sanitize(arg = "") {
     .replace(/delta\_time/g, "deltaTime")
     .replace(/\'/g, '"')
     .replace(/(?<="\[.*)((?<!\])(")(?!\[))(?=.*\]")/g, "'") // Really slow, can maybe be optimized. see [1]
-
+  console.timeEnd("regex")
   let res = null
   try {
     res = JSON.parse(d)
   } catch (e) {
-    console.log("ERR", d)
+    console.log("\x1b[4m\x1b[33m%s\x1b[0m:%s", "ERR", d)
   }
   return res
 }
@@ -99,6 +90,6 @@ function sanitize(arg = "") {
 async function write(name, data) {
   fs.writeFile(name, data, err => {
     if (err) throw err
-    console.log("wrote file", name)
+    // console.log("wrote file", name)
   })
 }
